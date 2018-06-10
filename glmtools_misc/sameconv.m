@@ -32,7 +32,7 @@ function Y = sameconv(X, F)
 
 [nx, xwid] = size(X);
 [nf, fwid] = size(F);
-assert(xwid == fwid, 'X and F must have same second dimension');
+assert(xwid == fwid, sprintf('X and F must have same second dimension. %d != %d',xwid,fwid));
 
 % Decide which method to use based on size of F
 if log2(nf)+3>2*log2(fwid)

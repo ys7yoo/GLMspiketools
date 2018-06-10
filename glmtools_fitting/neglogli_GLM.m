@@ -32,7 +32,7 @@ rlen = size(gg.sps,1);
 % Check that upSampFactor is an integer
 assert(mod(upsampfactor,1) == 0, 'dtStim / dtSp must be an integer');
 % Check factor relating size of stim and binned spike train
-assert(slen*upsampfactor==rlen,'Spike train length must be an even multiple of stim length');
+assert(slen*upsampfactor==rlen,sprintf('Spike train length (%d) must be an even multiple of stim length (%d)',slen,rlen));
 
 % ----  Compute filtered resp to stimulus -----------------------------
 I0 = sameconv(Stim,k);
