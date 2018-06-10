@@ -56,7 +56,7 @@ seconds).  The code requires `dtSp` to evenly divide `dtStim`. Thus,
 for example, if the stimulus has a refresh rate of 100 Hz and spikes
 are represented with 1ms precision, then `dtStim=.01` and `dtSp=.001`.
 
-- fitting code relies on the matlab optimization toolbox function "fminunc".
+- fitting code relies on the matlab optimization toolbox function `fminunc`.
 
 - An older release of this code (now sitting in branch `old_v1`) had
   functionality that is no longer supported.  Namely: cubic spline
