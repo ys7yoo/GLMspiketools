@@ -30,7 +30,7 @@ Download
 Basic Usage
 ===
 
-1. From the main code directory (e.g., `~/Downloads/GLMspiketools/`), run the `setpaths` script to add relevant
+1. From the main code directory (e.g., `GLMspiketools/`), run the `etpaths_GLMspiketools` script to add relevant
     sub-directories to the matlab path.
 2. Examine demo scripts in sub-directory `demos/` to see simple
     scripts illustrating how to simulate and fit the GLM to spike
