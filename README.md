@@ -44,6 +44,10 @@ Basic Usage
    x time) stimulus, and illustrates both linear and bilinear
    parametrization of stimulus filter.
 3. `demo3_GLM_coupled.m` - simulates and fits GLM with two coupled neurons
+4. `demo4_GLM_3cCupledNeurons.m` - simulates and fits GLM with two coupled neurons
+5. `demo5_GLM_10CoupledNeurons.m` - simulates and fits GLM with two coupled neurons
+
+
 
 
 Notes
