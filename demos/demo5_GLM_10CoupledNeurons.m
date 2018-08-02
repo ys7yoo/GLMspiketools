@@ -49,12 +49,6 @@ elseif nht2<nht
 end    
 
 % plot it
-subplot(211); 
-plot(iht, ihbasis, ihbasprs.hpeaks, 1, '*', 'linewidth', 2);
-xlabel('time after spike (ms)'); title('post-spike basis');
-subplot(212); 
-plot(iht2, ihbasis2, ihbasprs2.hpeaks, 1, '*', 'linewidth', 2);
-xlabel('time after spike (ms)'); title('coupling basis');
 
 
 %% Set self-coupling filter shapes
@@ -63,41 +57,79 @@ wself = [-10; 3.2; -1]; % weights for self-coupling term
 ihself = ihbasis*wself; % self-coupling filter
 wcpl = 0.5; % weights for cross-coupling term
 ihcpl = ihbasis2*wcpl; % cross-coupling filter
-clf; plot(iht, exp(ihself), iht, exp(ihcpl), iht, iht*0+1, 'k--');
+
+
+%% plot coupling filter basis
+%clf; 
+
+c = get(0, 'DefaultAxesColorOrder')
+
+clf
+subplot(311); 
+plot(iht, ihbasis, 'Color', c(1,:), 'linewidth', 2); hold on
+plot(ihbasprs.hpeaks, 1, '*k', 'linewidth', 1) %, 'MarkerSize', 7);
+xlabel('time after spike (ms)'); title('post-spike basis'); box off
+subplot(312); 
+plot(iht2, ihbasis2, 'Color', c(2,:), 'linewidth', 2); hold on
+plot(ihbasprs2.hpeaks, 1, '*k', 'linewidth', 1) %, 'MarkerSize', 7);
+xlabel('time after spike (ms)'); title('coupling basis'); box off
+
+subplot(313); 
+plot(iht, exp(ihself), iht, exp(ihcpl), iht, iht*0+1, 'k:', 'linewidth', 2);
 legend('self-coupling', 'cross-coupling');
 xlabel('time lag (s)');
 ylabel('gain (sp/s)');
+box off
+
+set(gcf, 'paperposition', [0 0 6 9])
+set(gcf, 'papersize', [6 9])
+saveas(gcf, 'coupling-filters-basis.pdf')
+saveas(gcf, 'coupling-filters-basis.png')
 
 
-%% Set up multi-neuron GLM
+%% Set up multi-neuron GLM "network"
 
-nneur = 10;
+N = 10;
 k = randn(10,1)*0.5; % stimulus weights
 gg.k = permute(k,[2,3,1]);  % stimulus weights
-gg.dc = 2+(rand(1,nneur)-0.5);
+gg.dc = 2+(rand(1,N)-0.5);
 
 % Generate random coupling strengths
-WW = randn(nneur);  % coupling strengths
+WW = randn(N);  % coupling strengths
 WW = WW-diag(diag(WW)-1); % set diagonal to zero (for self-coupling)
 
 gg.iht = iht;
-gg.ih = zeros(nht,nneur,nneur);
+gg.ih = zeros(nht,N,N);
 % Insert coupling filters
-for jj = 1:nneur
+for jj = 1:N
     gg.ih(:,:,jj) = ihcpl*WW(jj,:); % cross-coupling input weights to neuron jj
     gg.ih(:,jj,jj) = ihself*WW(jj,jj); % self-coupling weights
 end
 
-% Plot filters
+%% Plot filters
 lw = 2; % linewidth
-subplot(131); 
-plot(gg.iht, gg.ih(:,:,1),gg.iht,gg.iht*0, 'k--', 'linewidth', lw);
-title('incoming filters: cell 1');
-subplot(132); 
-plot(gg.iht, gg.ih(:,:,2),gg.iht,gg.iht*0, 'k--', 'linewidth', lw);
-title('incoming filters: cell 2');
-subplot(133); 
-plot(gg.iht, gg.ih(:,:,3),gg.iht,gg.iht*0, 'k--', 'linewidth', lw);
+clf
+subplot(221)
+imagesc(WW, [-2.5 2.5]); colorbar; box off
+axis xy tight equal
+title('weights')
+subplot(222); 
+plot(gg.iht, exp(gg.ih(:,:,1)), 'linewidth', lw);
+%plot(gg.iht, gg.ih(:,:,1), gg.iht, gg.iht*0, 'k--', 'linewidth', lw);
+title('incoming filters: cell 1'); box off
+subplot(223); 
+plot(gg.iht, exp(gg.ih(:,:,2)), 'linewidth', lw);
+%plot(gg.iht, gg.ih(:,:,2), gg.iht, gg.iht*0, 'k--', 'linewidth', lw);
+title('incoming filters: cell 2'); box off
+subplot(224); 
+plot(gg.iht, exp(gg.ih(:,:,3)), 'linewidth', lw);
+%plot(gg.iht, gg.ih(:,:,3), gg.iht, gg.iht*0, 'k--', 'linewidth', lw);
+title('incoming filters: cell 3'); box off
+
+set(gcf, 'paperposition', [0 0 12 10])
+set(gcf, 'papersize', [12 10])
+saveas(gcf, 'coupling-filters-net.pdf')
+saveas(gcf, 'coupling-filters-net.png')
 
 %% ===== 2. Run short simulation for visualization purposes ========= %
 
@@ -110,22 +142,43 @@ Isp = Itot-Istm; % net spike-history output
 
 % ==== Plot some traces of simulated response  ========
 tt = (dtSp:dtSp:slen*dtStim)';
-subplot(131)  % % ==== neuron 1 ===========
-plot(tt, Istm(:,1), 'k', tt, Isp(:,1), 'r',  tt, tt*0, 'k--', ...
-    tsp{1}, ones(size(tsp{1})), 'ro');
+clf
+
+subplot(221)
+plot(tt, Stim); box off
+%title('cell 1');  axis tight;
+xlabel('time (s)'); %ylabel('filter output');
+title('stimulus')
+
+subplot(222)  % % ==== neuron 1 ===========
+plot(tt, Istm(:,1), 'k', tt, Isp(:,1), 'r'); hold on
+plot(tsp{1}, ones(size(tsp{1})), 'ro');
+%plot(tt, tt*0, 'k--')
 title('cell 1');  axis tight;
 xlabel('time (s)'); ylabel('filter output');
-legend('stim filter + dc', 'spike-hist filter');
-subplot(132)  % ==== neuron 2 ===========
-plot(tt, Istm(:,2), 'k', tt, Isp(:,2), 'r',  tt, tt*0, 'k--', ...
-    tsp{2}, ones(size(tsp{2})), 'ro');
+legend('stim filter + dc', 'spike-hist filter', 'spike', 'location', 'SE');
+box off
+
+subplot(223)  % ==== neuron 2 ===========
+plot(tt, Istm(:,2), 'k', tt, Isp(:,2), 'r'); hold on
+plot(tsp{2}, ones(size(tsp{2})), 'ro');
+%plot(tt, tt*0, 'k--')
 title('cell 2');  axis tight;
 xlabel('time (s)'); 
-subplot(133)  % ==== neuron 3 ===========
-plot(tt, Istm(:,3), 'k', tt, Isp(:,3), 'r',  tt, tt*0, 'k--', ...
-    tsp{3}, ones(size(tsp{3})), 'ro');
+box off
+
+subplot(224)  % ==== neuron 3 ===========
+plot(tt, Istm(:,3), 'k', tt, Isp(:,3), 'r'); hold on
+plot(tsp{3}, ones(size(tsp{3})), 'ro');
+%plot(tt, tt*0, 'k--')
 title('cell 3');  axis tight;
 xlabel('time (s)'); 
+box off
+
+set(gcf, 'paperposition', [0 0 8 6])
+set(gcf, 'papersize', [8 6])
+saveas(gcf, 'simulation.pdf')
+saveas(gcf, 'simulation.png')
 
 %% ===== 3. Generate some training data =============================== %%
 
@@ -145,28 +198,28 @@ ggInit.ihbas = ihbas; % h self-coupling basis
 ggInit.ihbas2 = ihbas2; % h coupling-filter basis
 nktbasis = 1; % number of basis vectors in k basis
 nhbasis = size(ihbas,2); % number of basis vectors in h basis
-nhbasis2 = size(ihbas2,nneur-1); % number of basis vectors in h basis
+nhbasis2 = size(ihbas2,N-1); % number of basis vectors in h basis
 ggInit.kt = 1; % initial params from scaled-down sta 
 ggInit.k = 1;  % initial setting of k filter
 ggInit.ihw = zeros(nhbasis,1); % init params for self-coupling filter
-ggInit.ihw2 = zeros(nhbasis2,nneur-1); % init params for cross-coupling filter
+ggInit.ihw2 = zeros(nhbasis2,N-1); % init params for cross-coupling filter
 ggInit.ih = [ggInit.ihbas*ggInit.ihw ggInit.ihbas2*ggInit.ihw2];
 ggInit.iht = iht;
 ggInit.dc = 0; % Initialize dc term to zero
 ggInit.sps = sps(:,1); % spikes from 1 cell
-ggInit.sps2 = sps(:,2:nneur); % spikes from all 
-ggInit.couplednums = 2:nneur; % cell numbers of cells coupled to this one 
+ggInit.sps2 = sps(:,2:N); % spikes from all 
+ggInit.couplednums = 2:N; % cell numbers of cells coupled to this one 
 
-ggfit(1:nneur) = ggInit; % initialize fitting struct
-kfit = zeros(nneur,1);
-dcfit = zeros(nneur,1);
-for jj = 1:nneur
-    couplednums = setdiff(1:nneur,jj);  % cell numbers of cells coupled to this one 
+ggfit(1:N) = ggInit; % initialize fitting struct
+kfit = zeros(N,1);
+dcfit = zeros(N,1);
+for jj = 1:N
+    couplednums = setdiff(1:N,jj);  % cell numbers of cells coupled to this one (jj)
 
-    % Set spike responses for cell 1 and coupled cell
+    % Set spike responses for this cell (jj) and coupled cells
     ggInit.sps = sps(:,jj);
     ggInit.sps2 = sps(:,couplednums);
-    ggInit.couplednums = couplednums; % number of cell coupled to this one (for clarity)
+    ggInit.couplednums = couplednums; % numbers of cells coupled to this one (for clarity)
 
     % Do ML fitting
     fprintf('==== Fitting filters to neuron %d ==== \n',  jj)
@@ -184,21 +237,33 @@ ncolrs = size(colors,1); % number of traces to plot for each cell
 ymax = max(exp([ggfit(1).ih(:);ggfit(2).ih(:);ggfit(3).ih(:);gg.ih(:)])); % max of y range
 
 for jj = 1:10
-    subplot(2,5,jj); % --Spike filters cell 1 % -------------
-    ccpl = setdiff(1:nneur,jj); % coupled cells
-    cnums = [jj, ccpl];
-    plot(gg.iht, exp(gg.ih(:,cnums(1:ncolrs),jj)), ggfit(jj).iht, exp(ggfit(jj).ih(:,1:ncolrs)), '--', 'linewidth', lw);
-    hold on; plot(gg.iht, gg.iht*0+1, 'k'); hold off;
+    subplot(2,5,jj); % --Spike filters cell jj % -------------
+    ccpl = setdiff(1:N,jj); % coupled cells
+    cnums = [jj, ccpl];  % put self-coupling at the first
+    plot(gg.iht, exp(gg.ih(:,cnums(1:ncolrs),jj)),'--', 'linewidth', lw); hold on % true
+    plot(ggfit(jj).iht, exp(ggfit(jj).ih(:,1:ncolrs)), '-', 'linewidth', lw); % estim
+    %hold on; plot(gg.iht, gg.iht*0+1, 'k'); hold off;
     title(sprintf('cell %d filters',jj)); axis tight; set(gca,'ylim',[0,ymax]);
-    if jj==1
-        ylabel('gain (sp/s)'); xlabel('time after spike (s)');
+    box off
+    
+    if jj==1 || jj==6
+        ylabel('gain (sp/s)'); 
+    end
+    if jj>5
+        xlabel('time after spike (s)');
     end
 end
+
+set(gcf, 'paperposition', [0 0 13 5])
+set(gcf, 'papersize', [13 5])
+saveas(gcf, 'estimate.pdf')
+saveas(gcf, 'estimate.png')
+
 
 % Print true and recovered params:
 fprintf('\n---------------------------------\n');
 fprintf('k: true   est   |  dc: true  est\n');
 fprintf('---------------------------------\n');
-for jj = 1:nneur
+for jj = 1:N
     fprintf('  %5.2f  %5.2f        %5.2f %5.2f\n', [gg.k(jj), kfit(jj), gg.dc(jj), dcfit(jj)]);
 end
