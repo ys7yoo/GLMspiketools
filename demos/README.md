@@ -2,10 +2,10 @@
 
 A simulation with N=10 neurons.
 
-### coupling filter basis
+### basis for coupling filters
 ![](pic/coupling-filters-basis.png)
 
-### Set up multi-neuron GLM "network"
+### set up multi-neuron GLM "network"
 ![](pic/coupling-filters-net.png)
 
 ### simulation using `simGLM`
@@ -24,6 +24,6 @@ parameger `gg`
 simulation results
 ![](pic/simulation.png)
 
-### Estimate results
+### estimate results
 estimated filteres `ggfit.ih`
 ![](pic/estimate.png)
