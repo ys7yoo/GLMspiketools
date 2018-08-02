@@ -19,4 +19,5 @@ parameger `gg`
     ihbasprs: [1×1 struct]
     ktbasprs: [1×1 struct]
 ```
+![](pic/simulation.png)
 
