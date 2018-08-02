@@ -1,5 +1,7 @@
 ## `demo5_GLM_10CoupledNeurons.m'
 
+A simulation with N=10 neurons.
+
 ### coupling filter basis
 ![](pic/coupling-filters-basis.png)
 
