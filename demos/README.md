@@ -22,3 +22,6 @@ parameger `gg`
 simulation results
 ![](pic/simulation.png)
 
+### Estimate results
+estimated filteres `ggfit.ih`
+![](pic/estimate.png)
