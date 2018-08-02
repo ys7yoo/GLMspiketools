@@ -1,6 +1,7 @@
-## `demo5_GLM_10CoupledNeurons.m'
+## Demo 5. GLM network
 
-A simulation with N=10 neurons.
+* A simulation with N=10 neurons.
+* code: [`demo5_GLM_10CoupledNeurons.m`](demo5_GLM_10CoupledNeurons.m)
 
 ### basis for coupling filters
 ![](pic/coupling-filters-basis.png)
