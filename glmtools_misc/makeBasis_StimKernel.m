@@ -1,4 +1,4 @@
-function [kbasorth,kbasis] = makeBasis_StimKernel(kbasprs, nkt);
+function [kbasorth,kbasis] = makeBasis_StimKernel(kbasprs, nkt)
 %  [kbasorth, kbasis] = makeBasis_StimKernel(kbasprs, nkt);
 % 
 %  Generates a basis consisting of raised cosines and several columns of
