@@ -40,13 +40,22 @@ gg.couplednums = []; % numbers of coupled cells
 
 % % ----- Set up temporal basis for stimulus kernel -----------
 if nargin > 2
-    assert((klength>nkbasis), 'klength should be bigger than number of temporal basis vectors');
+    assert((klength>=nkbasis), 'klength should be bigger than number of temporal basis vectors');
 
-    ktbasprs.neye = 0; % number of "identity" basis vectors
-    ktbasprs.ncos = nkbasis; % Number of raised-cosine vectors to use
-    ktbasprs.kpeaks = [0 klength*(1 - 1.5/nkbasis)];  % Position of 1st and last bump
-    ktbasprs.b = 10; % Offset for nonlinear scaling (larger -> more linear)
-    [~,ktbasis] = makeBasis_StimKernel(ktbasprs,klength);
+    if nkbasis < klength % use raised cosine basis
+        ktbasprs.neye = 0; % number of "identity" basis vectors
+        ktbasprs.ncos = nkbasis; % Number of raised-cosine vectors to use
+        ktbasprs.kpeaks = [0 klength*(1 - 1.5/nkbasis)];  % Position of 1st and last bump
+        ktbasprs.b = 10; % Offset for nonlinear scaling (larger -> more linear)
+       
+        [~,ktbasis] = makeBasis_StimKernel(ktbasprs,klength);
+    else % standard basis
+        ktbasprs.neye=klength;
+        ktbasprs.ncos=0;
+        
+        ktbasis = eye(klength);
+    end
+    
     gg.ktbas = ktbasis;
     gg.ktbasprs = ktbasprs;
     
